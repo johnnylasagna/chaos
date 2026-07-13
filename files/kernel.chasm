@@ -1,0 +1,23 @@
+LABEL calls
+    JMP kernel
+    JMP print
+    JMP read
+    JMP write
+    JMP copy
+
+LABEL print
+    RET
+
+LABEL read
+    RET
+
+LABEL write
+    RET
+
+LABEL copy
+    RET
+
+LABEL kernel
+    JMP kernel
+
+HALT

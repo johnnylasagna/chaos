@@ -1,0 +1,38 @@
+// Bios call number
+MOVI A 1
+
+// Disk address
+MOVI B 0x200
+
+// Memory address
+MOVI C 0x200
+
+// Number of bytes
+MOVI D 0x200
+
+SYS
+
+MOVSTR C greeting
+
+MOVI A 2
+
+LABEL print
+    LOAD8 B C
+    CMPI B 0
+    JE kernel
+    SYS
+    ADDI C C 1
+    JMP print
+
+LABEL kernel
+
+MOVI A 0
+
+SYS
+
+LABEL end
+    JMP end
+
+STRING greeting Welcome_To_Chaos
+
+HALT

@@ -1,0 +1,11 @@
+build/
+.cache/
+
+*.bin
+*.exe
+*.o
+*.obj
+*.img
+
+.DS_Store
+Thumbs.db
