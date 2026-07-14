@@ -3,8 +3,10 @@
 #include <limits>
 
 #include "chaos/vm/chip.hpp"
+#include "chaos/vm/memory.hpp"
 #include "chaos/vm/img.hpp"
 #include "chaos/common/errors.hpp"
+#include "chaos/vm/display.hpp"
 
 // This program is used to run a disk img in a vm
 
@@ -16,8 +18,16 @@ int main(int argc, char *argv[]) {
 
 	const std::string path = argv[1];
 
-	Chaos::Chip chip;
+	Chaos::Memory ram(Chaos::RamSize);
+	Chaos::Memory video(Chaos::VideoSize);
+
+	Chaos::Cpu cpu;
+	Chaos::Bus bus(ram, video);
+
+	Chaos::Chip chip(cpu, bus);
 	Chaos::Disk disk;
+
+	Chaos::Display display(video);
 
 	auto loadResult = Chaos::Img::load(disk, path);
 
@@ -47,15 +57,12 @@ int main(int argc, char *argv[]) {
 			Chaos::printError(trapResult.error());
 		}
 
-		// auto stateResult = chip.printCpuState();
-
-		// if (!stateResult) {
-		// 	Chaos::printError(stateResult.error());
-		// 	return 1;
-		// }
-
-		// std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		display.show();
 	}
+
+	display.close();
+
+	CloseWindow();
 
 	auto saveResult = Chaos::Img::save(disk, path);
 

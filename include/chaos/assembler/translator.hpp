@@ -36,7 +36,7 @@ class Assembler {
 	static std::expected<std::uint64_t, Error> instructionLabel(Opcode opcode, const std::vector<std::string> &args,
 	                                                            const std::unordered_map<std::string, std::uint64_t> &addressMap);
 	static std::expected<std::uint64_t, Error> instructionRegisterString(Opcode opcode, const std::vector<std::string> &args,
-	                                                             const std::unordered_map<std::string, std::uint64_t> &stringMap);
+	                                                                     const std::unordered_map<std::string, std::uint64_t> &stringMap);
 	static std::expected<std::uint64_t, Error> instructionOnly(Opcode opcode, const std::vector<std::string> &args);
 	static std::expected<std::uint64_t, Error> instructionImmediate(Opcode opcode, const std::vector<std::string> &args);
 	static std::expected<std::uint64_t, Error> instructionRegisterRegister(Opcode opcode, const std::vector<std::string> &args);
@@ -52,6 +52,8 @@ class Assembler {
 
 	static std::vector<std::string> splitArguments(const std::string &line);
 	static std::expected<std::uint64_t, Error> parseNumber(const std::string &imm);
+
+	static void handleEscapeSequences(std::string &str);
 };
 
 } // namespace Chaos

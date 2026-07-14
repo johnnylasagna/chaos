@@ -9,16 +9,37 @@
 
 namespace Chaos {
 
+enum class BusError { UnknownMemorySpace };
+
 class Bus {
   public:
+	Bus(Memory &ram_, Memory &video_);
+
 	template <typename T> std::expected<T, Error> read(std::uint64_t address);
 	template <typename T> std::expected<void, Error> write(std::uint64_t address, T value);
 
   private:
-	Memory memory;
+	Memory &ram;
+	Memory &video;
 };
 
-template <typename T> std::expected<T, Error> Bus::read(std::uint64_t address) { return memory.read<T>(address); }
-template <typename T> std::expected<void, Error> Bus::write(std::uint64_t address, T value) { return memory.write<T>(address, value); }
+template <typename T> std::expected<T, Error> Bus::read(std::uint64_t address) {
+	if (address >= VideoOffset) {
+		return video.read<T>(address - VideoOffset);
+	} else if (address >= RamOffset) {
+		return video.read<T>(address - RamOffset);
+	}
+
+	return std::unexpected(Error{BusError::UnknownMemorySpace, std::to_string(address)});
+}
+template <typename T> std::expected<void, Error> Bus::write(std::uint64_t address, T value) {
+	if (address >= VideoOffset) {
+		return video.write<T>(address - VideoOffset, value);
+	} else if (address >= RamOffset) {
+		return video.write<T>(address - RamOffset, value);
+	}
+
+	return std::unexpected(Error{BusError::UnknownMemorySpace, std::to_string(address)});
+}
 
 } // namespace Chaos

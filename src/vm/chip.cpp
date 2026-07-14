@@ -3,6 +3,8 @@
 
 namespace Chaos {
 
+Chip::Chip(Cpu &cpu_, Bus &bus_) : cpu(cpu_), bus(bus_) {};
+
 std::expected<void, Error> Chip::run() {
 	auto result = cpu.execute(bus);
 

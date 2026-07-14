@@ -43,11 +43,13 @@ std::expected<void, Error> Assembler::assemble(const std::string &path) {
 		}
 
 		if (args[0] == "STRING") {
-			if (args.size() != 3) {
+			if (args.size() < 3) {
 				return std::unexpected(Error{AssembleError::InvalidArgumentCount, args[0]});
 			}
 
-			std::string_view str = args[2];
+			std::string str = line.substr(args[0].size() + 1 + args[1].size() + 1);
+
+			handleEscapeSequences(str);
 
 			for (const char &c : str) {
 				binary.write(&c, 1);
@@ -130,13 +132,17 @@ std::expected<std::unordered_map<std::string, std::uint64_t>, Error> Assembler::
 		}
 
 		if (args[0] == "STRING") {
-			if (args.size() != 3) {
+			if (args.size() < 3) {
 				return std::unexpected(Error{AssembleError::InvalidArgumentCount, args[0]});
 			}
 
 			stringMap[args[1]] = address;
 
-			address += args[2].length();
+			std::string str = line.substr(args[0].size() + 1 + args[1].size() + 1);
+
+			handleEscapeSequences(str);
+
+			address += str.length();
 		} else {
 			address += 8;
 		}
@@ -481,6 +487,64 @@ std::expected<std::uint64_t, Error> Assembler::parseNumber(const std::string &im
 		return std::unexpected(Error{AssembleError::InvalidIntegerFormat, imm});
 	} catch (const std::out_of_range &) {
 		return std::unexpected(Error{AssembleError::InvalidIntegerFormat, imm});
+	}
+}
+
+void Assembler::handleEscapeSequences(std::string &str) {
+	size_t pos = 0;
+
+	while ((pos = str.find('\\', pos)) != std::string::npos) {
+		// if backslash is the very last character, stop
+		if (pos + 1 >= str.length()) {
+			break;
+		}
+
+		char next_char = str[pos + 1];
+		char replacement = '\0';
+		bool match_found = true;
+
+		switch (next_char) {
+		case '0':
+			replacement = '\0';
+			break; // Null terminator
+		case 'n':
+			replacement = '\n';
+			break; // Newline
+		case 't':
+			replacement = '\t';
+			break; // Tab
+		case 'r':
+			replacement = '\r';
+			break; // Carriage return
+		case '\\':
+			replacement = '\\';
+			break; // Literal backslash
+		case 'b':
+			replacement = '\b';
+			break; // Backspace
+		case 'v':
+			replacement = '\v';
+			break; // Vertical tab
+		case 'f':
+			replacement = '\f';
+			break; // Form feed
+		case '\"':
+			replacement = '\"';
+			break; // Double quote
+		case '\'':
+			replacement = '\'';
+			break; // Single quote
+		default:
+			// Not a recognized escape sequence, skip it
+			match_found = false;
+			pos += 1;
+			break;
+		}
+
+		if (match_found) {
+			str.replace(pos, 2, 1, replacement);
+			pos += 1;
+		}
 	}
 }
 

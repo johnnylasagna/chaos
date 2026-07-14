@@ -23,6 +23,7 @@ add_executable(chaos-vm
     src/vm/img.cpp
     src/vm/memory.cpp
     src/vm/vm.cpp
+    src/vm/display.cpp
 )
 
 # Formatter
@@ -30,6 +31,10 @@ add_executable(chaos-formatter
     src/formatter/formatter.cpp
     src/formatter/writer.cpp
 )
+
+find_package(raylib REQUIRED)
+
+target_link_libraries(chaos-vm PRIVATE raylib)
 
 # Common configuration
 foreach(target chaos-assembler chaos-vm chaos-formatter)

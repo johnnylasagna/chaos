@@ -2,6 +2,6 @@
 
 namespace Chaos {
 
-Memory::Memory() { data.resize(MemorySize); }
+Memory::Memory(const size_t size) { data.resize(size); }
 
 } // namespace Chaos

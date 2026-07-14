@@ -8,13 +8,18 @@
 
 namespace Chaos {
 
-inline constexpr size_t MemorySize = 4 * 1024; // 4 KB
+inline constexpr size_t RamOffset = 0;
+inline constexpr size_t RamSize = 4 * 1024; // 4 KB
+inline constexpr size_t VideoOffset = RamSize;
+inline constexpr size_t VideoWidth = 800;
+inline constexpr size_t VideoHeight = 600;
+inline constexpr size_t VideoSize = VideoWidth * VideoHeight; // 467 KB
 
 enum class MemoryError { ReadOutOfBounds, WriteOutOfBounds };
 
 class Memory {
   public:
-	Memory();
+	Memory(const size_t size);
 
 	template <typename T> std::expected<T, Error> read(uint64_t address);
 	template <typename T> std::expected<void, Error> write(uint64_t address, T value);

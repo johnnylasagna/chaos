@@ -6,6 +6,9 @@ build/
 *.o
 *.obj
 *.img
+*.triad
+
+harmony
 
 .DS_Store
 Thumbs.db

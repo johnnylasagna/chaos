@@ -33,6 +33,7 @@ SYS
 LABEL end
     JMP end
 
-STRING greeting Welcome_To_Chaos
+STRING greeting Booting Chaos\0
+STRING secret The Modern Age
 
 HALT
