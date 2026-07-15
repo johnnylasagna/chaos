@@ -27,7 +27,7 @@ template <typename T> std::expected<T, Error> Bus::read(std::uint64_t address) {
 	if (address >= VideoOffset) {
 		return video.read<T>(address - VideoOffset);
 	} else if (address >= RamOffset) {
-		return video.read<T>(address - RamOffset);
+		return ram.read<T>(address - RamOffset);
 	}
 
 	return std::unexpected(Error{BusError::UnknownMemorySpace, std::to_string(address)});
@@ -36,7 +36,7 @@ template <typename T> std::expected<void, Error> Bus::write(std::uint64_t addres
 	if (address >= VideoOffset) {
 		return video.write<T>(address - VideoOffset, value);
 	} else if (address >= RamOffset) {
-		return video.write<T>(address - RamOffset, value);
+		return ram.write<T>(address - RamOffset, value);
 	}
 
 	return std::unexpected(Error{BusError::UnknownMemorySpace, std::to_string(address)});

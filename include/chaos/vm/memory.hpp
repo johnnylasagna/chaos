@@ -6,6 +6,10 @@
 
 #include "chaos/common/errors.hpp"
 
+#include <atomic>
+#include <mutex>
+#include <shared_mutex>
+
 namespace Chaos {
 
 inline constexpr size_t RamOffset = 0;
@@ -23,6 +27,10 @@ class Memory {
 
 	template <typename T> std::expected<T, Error> read(uint64_t address);
 	template <typename T> std::expected<void, Error> write(uint64_t address, T value);
+	std::expected<void, Error> copy(std::vector<uint8_t>& dest);
+
+	std::atomic<bool> dirty{false};
+	mutable std::shared_mutex mtx;
 
   private:
 	std::vector<uint8_t> data;
@@ -35,6 +43,8 @@ template <typename T> std::expected<T, Error> Memory::read(uint64_t address) {
 		return std::unexpected(Error{MemoryError::ReadOutOfBounds, std::to_string(address)});
 
 	T result = 0;
+
+	std::shared_lock<std::shared_mutex> lock(mtx);
 
 	while (numBytes--) {
 		result <<= 8;
@@ -50,10 +60,14 @@ template <typename T> std::expected<void, Error> Memory::write(uint64_t address,
 	if (address > data.size() - numBytes)
 		return std::unexpected(Error{MemoryError::WriteOutOfBounds, std::to_string(address)});
 
+	std::unique_lock<std::shared_mutex> lock(mtx);
+
 	while (numBytes--) {
 		data[address + numBytes] = value & 0xFF;
 		value >>= 8;
 	}
+
+	dirty.store(true);
 
 	return {};
 }

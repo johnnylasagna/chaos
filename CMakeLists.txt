@@ -24,6 +24,7 @@ add_executable(chaos-vm
     src/vm/memory.cpp
     src/vm/vm.cpp
     src/vm/display.cpp
+    src/vm/machine.cpp
 )
 
 # Formatter

@@ -1,12 +1,9 @@
 #include <iostream>
 #include <expected>
 #include <limits>
+#include <thread>
 
-#include "chaos/vm/chip.hpp"
-#include "chaos/vm/memory.hpp"
-#include "chaos/vm/img.hpp"
-#include "chaos/common/errors.hpp"
-#include "chaos/vm/display.hpp"
+#include "chaos/vm/machine.hpp"
 
 // This program is used to run a disk img in a vm
 
@@ -18,57 +15,20 @@ int main(int argc, char *argv[]) {
 
 	const std::string path = argv[1];
 
-	Chaos::Memory ram(Chaos::RamSize);
-	Chaos::Memory video(Chaos::VideoSize);
+	Chaos::Machine machine(path);
 
-	Chaos::Cpu cpu;
-	Chaos::Bus bus(ram, video);
+	auto result = machine.init();
 
-	Chaos::Chip chip(cpu, bus);
-	Chaos::Disk disk;
-
-	Chaos::Display display(video);
-
-	auto loadResult = Chaos::Img::load(disk, path);
-
-	if (!loadResult) {
-		Chaos::printError(loadResult.error());
+	if (!result) {
+		Chaos::printError(result.error());
 		return 1;
 	}
 
-	auto copyResult = chip.copyFromDisk(disk, 0, 0, 512);
+	auto runResult = machine.run();
 
-	if (!copyResult) {
-		Chaos::printError(copyResult.error());
-		return 1;
-	}
-
-	while (true) {
-		auto runResult = chip.run();
-
-		if (!runResult) {
-			Chaos::printError(runResult.error());
-			return 1;
-		}
-
-		auto trapResult = chip.checkTrap(disk);
-
-		if (!trapResult) {
-			Chaos::printError(trapResult.error());
-		}
-
-		display.show();
-	}
-
-	display.close();
-
-	CloseWindow();
-
-	auto saveResult = Chaos::Img::save(disk, path);
-
-	if (!saveResult) {
-		Chaos::printError(saveResult.error());
-		return 1;
+	if (!runResult) {
+		Chaos::printError(runResult.error());
+		return 2;
 	}
 
 	return 0;

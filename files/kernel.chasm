@@ -18,6 +18,21 @@ LABEL copy
     RET
 
 LABEL kernel
-    JMP kernel
+    MOVI B 0
+
+LABEL animate
+    MOVI A 4096
+    MOVI C 480000
+    CALL drawloop
+    ADDI B B 128
+    JMP animate
+
+LABEL drawloop
+    STORE8 A B
+    SUBI C C 1
+    ADDI A A 1
+    CMPI C 0
+    JNE drawloop
+    RET
 
 HALT

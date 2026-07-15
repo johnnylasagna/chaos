@@ -3,21 +3,17 @@
 namespace Chaos {
 
 Display::Display(Memory &video_) : video(video_) {
+	SetTraceLogLevel(LOG_NONE);
 	InitWindow(VideoWidth, VideoHeight, "Chaos");
 	SetTargetFPS(60);
 
 	buffer.resize(VideoSize);
 
-	for (size_t i = 0; i < VideoSize; i++) {
-		// Ignore std::unexpected check because it is guaranteed to be within limits
-		auto result = video.read<uint8_t>(i);
+	auto result = video.copy(buffer);
 
-		if (!result) {
-			printError(result.error());
-			return;
-		}
-
-		buffer[i] = result.value();
+	if (!result) {
+		printError(result.error());
+		return;
 	}
 
 	Image image{
@@ -27,13 +23,23 @@ Display::Display(Memory &video_) : video(video_) {
 }
 
 void Display::show() {
-	UpdateTexture(texture, buffer.data());
+	if (video.dirty.exchange(false)) {
+		auto result = video.copy(buffer);
+		if (!result) {
+			printError(result.error());
+			return;
+		}
+		UpdateTexture(texture, buffer.data());
+	}
 
 	BeginDrawing();
 	DrawTexture(texture, 0, 0, WHITE);
 	EndDrawing();
 }
 
-void Display::close() { CloseWindow(); }
+Display::~Display() {
+	UnloadTexture(texture);
+	CloseWindow();
+}
 
 } // namespace Chaos

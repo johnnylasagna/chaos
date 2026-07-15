@@ -6,6 +6,8 @@ Cpu::Cpu() {
 	registers.resize(RegisterCount);
 	flags.resize(FlagCount);
 	trap = false;
+
+	writeRegister(Register::RETSP, 4096);
 }
 
 std::expected<void, Error> Cpu::execute(Bus &bus) {
@@ -428,44 +430,39 @@ std::expected<void, Error> Cpu::executeInstruction(const Instruction &instructio
 	case Opcode::CALL: {
 		auto programCounter = readRegister(Register::PC);
 		auto programOffset = readRegister(Register::PO);
-
 		auto rsp = readRegister(Register::RETSP);
 
+		rsp -= 8;
 		auto pcWriteResult = bus.write(rsp, programCounter);
-
-		if (!pcWriteResult) {
+		if (!pcWriteResult)
 			return std::unexpected(pcWriteResult.error());
-		}
 
-		auto poWriteResult = bus.write(rsp - 1, programOffset);
-
-		if (!poWriteResult) {
+		rsp -= 8;
+		auto poWriteResult = bus.write(rsp, programOffset);
+		if (!poWriteResult)
 			return std::unexpected(poWriteResult.error());
-		}
 
-		writeRegister(Register::RETSP, rsp - 2);
+		writeRegister(Register::RETSP, rsp);
 
 		auto address = instruction.immediate;
 		writeRegister(Register::PC, address);
-
 		break;
 	}
 
 	case Opcode::RET: {
 		auto rsp = readRegister(Register::RETSP);
 
-		auto poReadResult = bus.read<uint64_t>(rsp + 1);
-
-		if (!poReadResult) {
+		auto poReadResult = bus.read<uint64_t>(rsp);
+		if (!poReadResult)
 			return std::unexpected(poReadResult.error());
-		}
+		rsp += 8;
 
-		auto pcReadResult = bus.read<uint64_t>(rsp + 2);
-
-		if (!pcReadResult) {
+		auto pcReadResult = bus.read<uint64_t>(rsp);
+		if (!pcReadResult)
 			return std::unexpected(pcReadResult.error());
-		}
+		rsp += 8;
 
+		writeRegister(Register::RETSP, rsp);
 		writeRegister(Register::PC, pcReadResult.value());
 		writeRegister(Register::PO, poReadResult.value());
 		break;
@@ -481,7 +478,6 @@ std::expected<void, Error> Cpu::executeInstruction(const Instruction &instructio
 	case Opcode::STRING: {
 		break;
 	}
-
 	}
 
 	return {};

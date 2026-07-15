@@ -1,6 +1,6 @@
 # Chaos
 
-**Chaos** (pronounced **Kay-OS**) is a purely virtual operating system that runs on a custom instruction set architecture (ISA). It makes use of a custom assembly language called chasm. Any firmware functions are implemented through standard C++ functions.
+**Chaos** (pronounced **Kay-OS**) is a purely virtual operating system that runs on a custom instruction set architecture (ISA). It makes use of a custom assembly language called chasm. Any firmware functionality is implemented through standard C++ functions.
 
 ## Requirements
 
