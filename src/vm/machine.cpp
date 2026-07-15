@@ -15,7 +15,7 @@ std::expected<void, Error> Machine::init() {
 		return std::unexpected(loadResult.error());
 	}
 
-	auto copyResult = chip.copyFromDisk(disk, 0, 0, 512);
+	auto copyResult = bus.copyFromDisk(0, 0, 512);
 
 	if (!copyResult) {
 		return std::unexpected(copyResult.error());
@@ -71,12 +71,8 @@ std::expected<void, Error> Machine::runChip() {
 			return std::unexpected(runResult.error());
 		}
 
-		auto trapResult = chip.checkTrap(disk);
-
-		if (!trapResult) {
-			running.store(false);
-			return std::unexpected(trapResult.error());
-		}
+		// chip.printCpuState();
+		// getchar();
 	}
 
 	return {};

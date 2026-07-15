@@ -5,7 +5,6 @@ namespace Chaos {
 Cpu::Cpu() {
 	registers.resize(RegisterCount);
 	flags.resize(FlagCount);
-	trap = false;
 
 	writeRegister(Register::RETSP, 4096);
 }
@@ -424,6 +423,74 @@ std::expected<void, Error> Cpu::executeInstruction(const Instruction &instructio
 
 	case Opcode::SYS: {
 		trap = true;
+
+		auto programCounter = readRegister(Register::PC);
+		auto programOffset = readRegister(Register::PO);
+		auto rsp = readRegister(Register::RETSP);
+
+		rsp -= 8;
+		auto pcWriteResult = bus.write(rsp, programCounter);
+
+		if (!pcWriteResult) {
+			return std::unexpected(pcWriteResult.error());
+		}
+
+		rsp -= 8;
+		auto poWriteResult = bus.write(rsp, programOffset);
+
+		if (!poWriteResult) {
+			return std::unexpected(poWriteResult.error());
+		}
+
+		writeRegister(Register::RETSP, rsp);
+
+		writeRegister(Register::PC, 0);
+		writeRegister(Register::PO, 0x200);
+
+		break;
+	}
+
+	case Opcode::SYS_READ: {
+		if (!trap) {
+			return std::unexpected(Error{CpuError::NotPrivileged, "SYS_READ"});
+		}
+
+		auto diskAddress = readRegister(Register::B);
+		auto memoryAddress = readRegister(Register::C);
+		auto size = readRegister(Register::D);
+
+		auto result = bus.copyFromDisk(diskAddress, memoryAddress, size);
+
+		if (!result) {
+			return std::unexpected(result.error());
+		}
+	}
+
+	case Opcode::SYS_WRITE: {
+		if (!trap) {
+			return std::unexpected(Error{CpuError::NotPrivileged, "SYS_WRITE"});
+		}
+
+		auto diskAddress = readRegister(Register::B);
+		auto memoryAddress = readRegister(Register::C);
+		auto size = readRegister(Register::D);
+
+		auto result = bus.copyToDisk(diskAddress, memoryAddress, size);
+
+		if (!result) {
+			return std::unexpected(result.error());
+		}
+	}
+
+	case Opcode::SYS_PRINT: {
+		if (!trap) {
+			return std::unexpected(Error{CpuError::NotPrivileged, "SYS_WRITE"});
+		}
+
+		auto character = readRegister(Register::B);
+
+		std::print("{}", static_cast<char>(character));
+
 		break;
 	}
 
@@ -434,18 +501,23 @@ std::expected<void, Error> Cpu::executeInstruction(const Instruction &instructio
 
 		rsp -= 8;
 		auto pcWriteResult = bus.write(rsp, programCounter);
-		if (!pcWriteResult)
+
+		if (!pcWriteResult) {
 			return std::unexpected(pcWriteResult.error());
+		}
 
 		rsp -= 8;
 		auto poWriteResult = bus.write(rsp, programOffset);
-		if (!poWriteResult)
+
+		if (!poWriteResult) {
 			return std::unexpected(poWriteResult.error());
+		}
 
 		writeRegister(Register::RETSP, rsp);
 
 		auto address = instruction.immediate;
 		writeRegister(Register::PC, address);
+
 		break;
 	}
 
@@ -453,18 +525,53 @@ std::expected<void, Error> Cpu::executeInstruction(const Instruction &instructio
 		auto rsp = readRegister(Register::RETSP);
 
 		auto poReadResult = bus.read<uint64_t>(rsp);
-		if (!poReadResult)
+
+		if (!poReadResult) {
 			return std::unexpected(poReadResult.error());
+		}
+
 		rsp += 8;
 
 		auto pcReadResult = bus.read<uint64_t>(rsp);
-		if (!pcReadResult)
+
+		if (!pcReadResult) {
 			return std::unexpected(pcReadResult.error());
+		}
+
 		rsp += 8;
 
 		writeRegister(Register::RETSP, rsp);
 		writeRegister(Register::PC, pcReadResult.value());
 		writeRegister(Register::PO, poReadResult.value());
+
+		break;
+	}
+
+	case Opcode::KRET: {
+		trap = false;
+
+		auto rsp = readRegister(Register::RETSP);
+
+		auto poReadResult = bus.read<uint64_t>(rsp);
+
+		if (!poReadResult) {
+			return std::unexpected(poReadResult.error());
+		}
+
+		rsp += 8;
+
+		auto pcReadResult = bus.read<uint64_t>(rsp);
+
+		if (!pcReadResult) {
+			return std::unexpected(pcReadResult.error());
+		}
+
+		rsp += 8;
+
+		writeRegister(Register::RETSP, rsp);
+		writeRegister(Register::PC, pcReadResult.value());
+		writeRegister(Register::PO, poReadResult.value());
+
 		break;
 	}
 

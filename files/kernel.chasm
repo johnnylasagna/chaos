@@ -1,38 +1,29 @@
 LABEL calls
-    JMP kernel
-    JMP print
-    JMP read
-    JMP write
-    JMP copy
+    CMPI A 0
+    JE loop
+
+    CMPI A 1
+    JE print
+
+    CMPI A 2
+    JE read
+
+    CMPI A 3
+    JE write
 
 LABEL print
-    RET
+    SYS_PRINT
+    KRET
 
 LABEL read
-    RET
+    SYS_READ
+    KRET
 
 LABEL write
-    RET
+    SYS_WRITE
+    KRET
 
-LABEL copy
-    RET
-
-LABEL kernel
-    MOVI B 0
-
-LABEL animate
-    MOVI A 4096
-    MOVI C 480000
-    CALL drawloop
-    ADDI B B 128
-    JMP animate
-
-LABEL drawloop
-    STORE8 A B
-    SUBI C C 1
-    ADDI A A 1
-    CMPI C 0
-    JNE drawloop
-    RET
+LABEL loop
+    JMP loop
 
 HALT

@@ -16,8 +16,12 @@ namespace Chaos {
 enum class Opcode {
 	HALT,
 	SYS,
+	SYS_READ,
+	SYS_WRITE,
+	SYS_PRINT,
 	CALL,
 	RET,
+	KRET,
 	LOAD,
 	LOAD8,
 	LOAD16,
@@ -113,6 +117,7 @@ struct Instruction {
 enum class Syscall {
 	Kernel,
 	Copy,
+	Read,
 	Print
 };
 

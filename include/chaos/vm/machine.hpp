@@ -19,12 +19,12 @@ class Machine {
   private:
 	Chaos::Memory ram{Chaos::RamSize};
 	Chaos::Memory video{Chaos::VideoSize};
+	Chaos::Disk disk;
 
 	Chaos::Cpu cpu;
-	Chaos::Bus bus{ram, video};
+	Chaos::Bus bus{ram, video, disk};
 
 	Chaos::Chip chip{cpu, bus};
-	Chaos::Disk disk;
 
 	std::atomic<bool> running{false};
 	std::string path;

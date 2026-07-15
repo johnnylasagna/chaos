@@ -13,14 +13,18 @@ enum class BusError { UnknownMemorySpace };
 
 class Bus {
   public:
-	Bus(Memory &ram_, Memory &video_);
+	Bus(Memory &ram_, Memory &video_, Disk &disk_);
 
 	template <typename T> std::expected<T, Error> read(std::uint64_t address);
 	template <typename T> std::expected<void, Error> write(std::uint64_t address, T value);
 
+	std::expected<void, Error> copyFromDisk(std::uint64_t diskAddress, std::uint64_t memoryAddress, std::size_t size);
+	std::expected<void, Error> copyToDisk(std::uint64_t diskAddress, std::uint64_t memoryAddress, std::size_t size);
+
   private:
 	Memory &ram;
 	Memory &video;
+	Disk &disk;
 };
 
 template <typename T> std::expected<T, Error> Bus::read(std::uint64_t address) {

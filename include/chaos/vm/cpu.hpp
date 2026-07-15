@@ -14,6 +14,7 @@ enum class CpuError {
 	InvalidOpcode,
 	InvalidRegister,
 	InvalidFlag,
+	NotPrivileged
 };
 
 class Cpu {
@@ -34,7 +35,7 @@ class Cpu {
   private:
 	std::vector<std::uint64_t> registers;
 	std::vector<std::uint8_t> flags;
-	bool trap;
+	bool trap{true};
 
 	std::expected<Instruction, Error> fetchInstruction(Bus &bus);
 	std::expected<void, Error> executeInstruction(const Instruction &instruction, Bus &bus);

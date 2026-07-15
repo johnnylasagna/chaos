@@ -211,12 +211,16 @@ std::expected<std::uint64_t, Error> Assembler::createInstruction(const std::vect
 		return instructionLabel(opcode.value(), args, addressMap);
 
 	case Opcode::SYS:
+	case Opcode::SYS_READ:
+	case Opcode::SYS_WRITE:
+	case Opcode::SYS_PRINT:
 		return instructionOnly(opcode.value(), args);
 
 	case Opcode::CALL:
 		return instructionLabel(opcode.value(), args, addressMap);
 
 	case Opcode::RET:
+	case Opcode::KRET:
 		return instructionOnly(opcode.value(), args);
 
 	case Opcode::MOVSTR:
