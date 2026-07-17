@@ -1,6 +1,3 @@
-// Bios call number
-MOVI A 2
-
 // Disk address
 MOVI B 0x200
 
@@ -12,35 +9,27 @@ MOVI D 0x200
 
 SYS_READ
 
-MOVSTR C greeting
+MOVSTR E greeting
 
 MOVI A 1
 
+MOVI C 300
+MOVI D 300
+
 LABEL print
-    LOAD8 B C
+    LOAD8 B E
     CMPI B 0
-    JE animate
+    JE kernel
     SYS
-    ADDI C C 1
+    ADDI E E 1
+    ADDI C C 16
     JMP print
 
-LABEL animate
-    MOVI A 4096
-    MOVI C 480000
-    MOVI B 255
-    CALL drawloop
+LABEL kernel
 
 MOVI A 0
 
 SYS
-
-LABEL drawloop
-    STORE8 A B
-    SUBI C C 1
-    ADDI A A 1
-    CMPI C 0
-    JNE drawloop
-    RET
 
 STRING greeting Booting Chaos\0
 STRING secret The Modern Age

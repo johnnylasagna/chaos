@@ -464,6 +464,8 @@ std::expected<void, Error> Cpu::executeInstruction(const Instruction &instructio
 		if (!result) {
 			return std::unexpected(result.error());
 		}
+
+		break;
 	}
 
 	case Opcode::SYS_WRITE: {
@@ -480,16 +482,41 @@ std::expected<void, Error> Cpu::executeInstruction(const Instruction &instructio
 		if (!result) {
 			return std::unexpected(result.error());
 		}
+
+		break;
 	}
 
 	case Opcode::SYS_PRINT: {
 		if (!trap) {
-			return std::unexpected(Error{CpuError::NotPrivileged, "SYS_WRITE"});
+			return std::unexpected(Error{CpuError::NotPrivileged, "SYS_PRINT"});
 		}
 
-		auto character = readRegister(Register::B);
+		constexpr int Scale = 2;
 
-		std::print("{}", static_cast<char>(character));
+		auto character = readRegister(Register::B);
+		auto x = readRegister(Register::C);
+		auto y = readRegister(Register::D);
+
+		auto base = CharsOffset + character * 8;
+
+		for (int row = 0; row < 8; ++row) {
+			uint8_t bits = bus.read<uint8_t>(base + row).value();
+
+			for (int col = 0; col < 8; ++col) {
+				bool on = bits & (0x80 >> col);
+
+				for (int dy = 0; dy < Scale; ++dy) {
+					for (int dx = 0; dx < Scale; ++dx) {
+						auto result =
+						    bus.write<uint8_t>(VideoOffset + (y + row * Scale + dy) * VideoWidth + (x + col * Scale + dx), on ? 255 : 0);
+
+						if (!result) {
+							return std::unexpected(result.error());
+						}
+					}
+				}
+			}
+		}
 
 		break;
 	}

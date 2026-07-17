@@ -21,6 +21,12 @@ std::expected<void, Error> Machine::init() {
 		return std::unexpected(copyResult.error());
 	}
 
+	copyResult = bus.copyFromDisk(1024, CharsOffset, CharsSize);
+
+	if (!copyResult) {
+		return std::unexpected(copyResult.error());
+	}
+
 	return {};
 }
 

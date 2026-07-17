@@ -30,6 +30,13 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+	writeResult = Chaos::Writer::write(path, 1024, "files/font.bin");
+
+	if (!writeResult) {
+		Chaos::printError(writeResult.error());
+		return 1;
+	}
+
     std::println("Successfully wrote to file: {}", path);
 
 	return 0;

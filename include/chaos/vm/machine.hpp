@@ -19,10 +19,11 @@ class Machine {
   private:
 	Chaos::Memory ram{Chaos::RamSize};
 	Chaos::Memory video{Chaos::VideoSize};
+	Chaos::Memory chars{Chaos::CharsSize};
 	Chaos::Disk disk;
 
 	Chaos::Cpu cpu;
-	Chaos::Bus bus{ram, video, disk};
+	Chaos::Bus bus{ram, video, chars, disk};
 
 	Chaos::Chip chip{cpu, bus};
 

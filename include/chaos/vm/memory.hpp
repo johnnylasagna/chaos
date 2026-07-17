@@ -18,6 +18,8 @@ inline constexpr size_t VideoOffset = RamSize;
 inline constexpr size_t VideoWidth = 800;
 inline constexpr size_t VideoHeight = 600;
 inline constexpr size_t VideoSize = VideoWidth * VideoHeight; // 467 KB
+inline constexpr size_t CharsOffset = VideoOffset + VideoSize;
+inline constexpr size_t CharsSize = 256 * 8 * 8; // 16KB
 
 enum class MemoryError { ReadOutOfBounds, WriteOutOfBounds };
 

@@ -112,6 +112,36 @@ On success, the formatter will print:
 Successfully wrote to file: img/disk.img
 ```
 
+## Fonts
+
+Chaos uses an 8×8 bitmap font stored as a raw binary file.
+
+The default font can be replaced with any compatible 8×8 IBM PC BIOS font from the `romfont` project:
+
+https://github.com/spacerace/romfont/tree/master/font-bin
+
+### Requirements
+
+The font must:
+
+- Be an 8×8 bitmap font.
+- Contain 256 glyphs.
+- Store each glyph as 8 bytes (one byte per row).
+- Have a total size of 2048 bytes.
+
+### Installing a Font
+
+1. Download any compatible `.bin` font from the `font-bin` directory.
+2. Rename it to:
+
+```text
+font.bin
+```
+
+3. Place it in the project's `./files` directory, replacing the existing font.
+
+The next time the virtual machine is started, the new font will be loaded automatically.
+
 ## Virtual Machine
 
 The virtual machine boots and runs a Chaos disk image.

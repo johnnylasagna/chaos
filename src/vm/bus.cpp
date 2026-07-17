@@ -2,7 +2,7 @@
 
 namespace Chaos {
 
-Bus::Bus(Memory &ram_, Memory &video_, Disk &disk_) : ram(ram_), video(video_), disk(disk_) {};
+Bus::Bus(Memory &ram_, Memory &video_, Memory &chars_, Disk &disk_) : ram(ram_), video(video_), chars(chars_), disk(disk_) {};
 
 std::expected<void, Error> Bus::copyFromDisk(std::uint64_t diskAddress, std::uint64_t memoryAddress, std::size_t size) {
 	for (std::size_t i = 0; i < size; ++i) {

@@ -9,6 +9,7 @@ build/
 *.triad
 
 harmony
+font
 
 .DS_Store
 Thumbs.db

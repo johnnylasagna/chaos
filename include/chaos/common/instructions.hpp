@@ -78,6 +78,10 @@ enum class Register {
 	B,
 	C,
 	D,
+	E, 
+	F,
+	G, 
+	H
 };
 
 // This line might give an error due to intellisense not supporting C++26 yet. You can ignore it.

@@ -33,12 +33,18 @@ add_executable(chaos-formatter
     src/formatter/writer.cpp
 )
 
+# Font
+add_executable(chaos-font
+    src/font/font.cpp
+    src/font/mapping.cpp
+)
+
 find_package(raylib REQUIRED)
 
 target_link_libraries(chaos-vm PRIVATE raylib)
 
 # Common configuration
-foreach(target chaos-assembler chaos-vm chaos-formatter)
+foreach(target chaos-assembler chaos-vm chaos-formatter chaos-font)
     target_include_directories(${target} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     )
