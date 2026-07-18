@@ -39,4 +39,15 @@ std::string stringFromEnum(T value) {
 	return "";
 }
 
+template <typename T>
+    requires std::is_enum_v<T>
+std::string shortEnumName(T value) {
+    std::string s = stringFromEnum(value);
+
+    if (auto pos = s.find("::"); pos != std::string::npos)
+        return s.substr(pos + 2);
+
+    return s;
+}
+
 } // namespace Chaos

@@ -33,12 +33,23 @@ add_executable(chaos-formatter
     src/formatter/writer.cpp
 )
 
+add_executable(chaos-hex
+    src/hex/hex.cpp
+    src/hex/viewer.cpp
+)
+
 find_package(raylib REQUIRED)
+find_package(ftxui REQUIRED)
 
 target_link_libraries(chaos-vm PRIVATE raylib)
+target_link_libraries(chaos-hex PRIVATE 
+    ftxui::screen
+    ftxui::dom
+    ftxui::component
+)
 
 # Common configuration
-foreach(target chaos-assembler chaos-vm chaos-formatter)
+foreach(target chaos-assembler chaos-vm chaos-formatter chaos-hex)
     target_include_directories(${target} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     )
