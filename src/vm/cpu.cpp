@@ -247,39 +247,97 @@ std::expected<void, Error> Cpu::executeInstruction(const Instruction &instructio
 	}
 
 	case Opcode::ADD: {
-		auto value1 = readRegister(instruction.registerSrc1);
-		auto value2 = readRegister(instruction.registerSrc2);
+		uint64_t value1 = readRegister(instruction.registerSrc1);
+		uint64_t value2 = readRegister(instruction.registerSrc2);
 
-		uint64_t resultValue = value1 + value2;
-		writeRegister(instruction.registerDest, resultValue);
+		__uint128_t result = (__uint128_t)value1 + value2;
+
+		writeRegister(instruction.registerDest, (uint64_t)result);
+		writeRegister(Register::Overflow, (uint64_t)(result >> 64));
 
 		break;
 	}
 
 	case Opcode::ADDI: {
-		auto value1 = readRegister(instruction.registerSrc1);
+		uint64_t value1 = readRegister(instruction.registerSrc1);
 
-		uint64_t resultValue = value1 + instruction.immediate;
-		writeRegister(instruction.registerDest, resultValue);
+		__uint128_t result = (__uint128_t)value1 + instruction.immediate;
+
+		writeRegister(instruction.registerDest, (uint64_t)result);
+		writeRegister(Register::Overflow, (uint64_t)(result >> 64));
 
 		break;
 	}
 
 	case Opcode::SUB: {
-		auto value1 = readRegister(instruction.registerSrc1);
-		auto value2 = readRegister(instruction.registerSrc2);
+		uint64_t value1 = readRegister(instruction.registerSrc1);
+		uint64_t value2 = readRegister(instruction.registerSrc2);
 
-		uint64_t resultValue = value1 - value2;
-		writeRegister(instruction.registerDest, resultValue);
+		uint64_t result = value1 - value2;
+
+		writeRegister(instruction.registerDest, result);
+		writeRegister(Register::Overflow, value1 < value2);
 
 		break;
 	}
 
 	case Opcode::SUBI: {
-		auto value1 = readRegister(instruction.registerSrc1);
+		uint64_t value1 = readRegister(instruction.registerSrc1);
 
-		uint64_t resultValue = value1 - instruction.immediate;
-		writeRegister(instruction.registerDest, resultValue);
+		uint64_t result = value1 - instruction.immediate;
+
+		writeRegister(instruction.registerDest, result);
+		writeRegister(Register::Overflow, value1 < instruction.immediate);
+
+		break;
+	}
+
+	case Opcode::MUL: {
+		uint64_t value1 = readRegister(instruction.registerSrc1);
+		uint64_t value2 = readRegister(instruction.registerSrc2);
+
+		__uint128_t result = (__uint128_t)value1 * value2;
+
+		writeRegister(instruction.registerDest, (uint64_t)result);
+		writeRegister(Register::Overflow, (uint64_t)(result >> 64));
+
+		break;
+	}
+
+	case Opcode::MULI: {
+		uint64_t value1 = readRegister(instruction.registerSrc1);
+
+		__uint128_t result = (__uint128_t)value1 * instruction.immediate;
+
+		writeRegister(instruction.registerDest, (uint64_t)result);
+		writeRegister(Register::Overflow, (uint64_t)(result >> 64));
+
+		break;
+	}
+
+	case Opcode::DIV: {
+		uint64_t value1 = readRegister(instruction.registerSrc1);
+		uint64_t value2 = readRegister(instruction.registerSrc2);
+
+		if (value2 == 0) {
+			return std::unexpected(Error{CpuError::DivisionByZero, "DIV"});
+		}
+
+		writeRegister(instruction.registerDest, value1 / value2);
+		writeRegister(Register::Overflow, value1 % value2);
+
+		break;
+	}
+
+	case Opcode::DIVI: {
+		uint64_t value1 = readRegister(instruction.registerSrc1);
+
+		if (instruction.immediate == 0) {
+			return std::unexpected(Error{CpuError::DivisionByZero, "DIVI"});
+		}
+
+		writeRegister(instruction.registerDest, value1 / instruction.immediate);
+		writeRegister(Register::Overflow, value1 % instruction.immediate);
 
 		break;
 	}

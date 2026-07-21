@@ -14,6 +14,7 @@ enum class CpuError {
 	InvalidOpcode,
 	InvalidRegister,
 	InvalidFlag,
+	DivisionByZero,
 	NotPrivileged
 };
 

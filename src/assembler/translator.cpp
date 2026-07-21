@@ -192,10 +192,14 @@ std::expected<std::uint64_t, Error> Assembler::createInstruction(const std::vect
 
 	case Opcode::ADD:
 	case Opcode::SUB:
+	case Opcode::MUL:
+	case Opcode::DIV:
 		return instructionRegisterRegisterRegister(opcode.value(), args);
 
 	case Opcode::ADDI:
 	case Opcode::SUBI:
+	case Opcode::MULI:
+	case Opcode::DIVI:
 		return instructionRegisterRegisterImmediate(opcode.value(), args);
 
 	case Opcode::LABEL:
