@@ -27,6 +27,8 @@ std::expected<void, Error> Machine::init() {
 		return std::unexpected(copyResult.error());
 	}
 
+	debug.init();
+
 	return {};
 }
 
@@ -35,9 +37,11 @@ std::expected<void, Error> Machine::run() {
 
 	auto displayFuture = std::async(std::launch::async, &Machine::runDisplay, this);
 	auto chipFuture = std::async(std::launch::async, &Machine::runChip, this);
+	auto debugFuture = std::async(std::launch::async, &Machine::runDebug, this);
 
 	auto displayResult = displayFuture.get();
 	auto chipResult = chipFuture.get();
+	auto debugResult = debugFuture.get();
 
 	if (!displayResult) {
 		return std::unexpected(displayResult.error());
@@ -45,6 +49,10 @@ std::expected<void, Error> Machine::run() {
 
 	if (!chipResult) {
 		return std::unexpected(chipResult.error());
+	}
+
+	if (!debugResult) {
+		return std::unexpected(debugResult.error());
 	}
 
 	auto saveResult = Chaos::Img::save(disk, path);
@@ -70,16 +78,28 @@ std::expected<void, Error> Machine::runDisplay() {
 
 std::expected<void, Error> Machine::runChip() {
 	while (running.load()) {
-		auto runResult = chip.run();
+		auto runResult = [&] {
+			std::unique_lock lock(instructionMutex);
+			return chip.run();
+		}();
 
 		if (!runResult) {
 			running.store(false);
 			return std::unexpected(runResult.error());
 		}
 
-		// chip.printCpuState();
-		// getchar();
+		debug.refresh();
 	}
+
+	return {};
+}
+
+std::expected<void, Error> Machine::runDebug() {
+	while (running.load()) {
+		debug.run();
+	}
+
+	debug.exit();
 
 	return {};
 }

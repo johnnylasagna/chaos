@@ -25,6 +25,7 @@ add_executable(chaos-vm
     src/vm/vm.cpp
     src/vm/display.cpp
     src/vm/machine.cpp
+    src/vm/debug.cpp
 )
 
 # Formatter
@@ -41,7 +42,13 @@ add_executable(chaos-hex
 find_package(raylib REQUIRED)
 find_package(ftxui REQUIRED)
 
-target_link_libraries(chaos-vm PRIVATE raylib)
+target_link_libraries(chaos-vm PRIVATE 
+    raylib
+    ftxui::screen
+    ftxui::dom
+    ftxui::component
+)
+
 target_link_libraries(chaos-hex PRIVATE 
     ftxui::screen
     ftxui::dom

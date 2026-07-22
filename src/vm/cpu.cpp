@@ -748,4 +748,8 @@ bool Cpu::getTrapStatus() const { return trap; }
 
 void Cpu::setTrapStatus(bool status) { trap = status; }
 
+std::pair<std::vector<std::uint64_t>, std::vector<std::uint8_t>> Cpu::getState() const {
+	return {registers, flags};
+}
+
 } // namespace Chaos

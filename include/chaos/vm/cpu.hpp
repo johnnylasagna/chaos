@@ -10,13 +10,7 @@
 
 namespace Chaos {
 
-enum class CpuError {
-	InvalidOpcode,
-	InvalidRegister,
-	InvalidFlag,
-	DivisionByZero,
-	NotPrivileged
-};
+enum class CpuError { InvalidOpcode, InvalidRegister, InvalidFlag, DivisionByZero, NotPrivileged };
 
 class Cpu {
   public:
@@ -32,6 +26,8 @@ class Cpu {
 
 	bool getTrapStatus() const;
 	void setTrapStatus(bool status);
+
+	std::pair<std::vector<std::uint64_t>, std::vector<std::uint8_t>> getState() const;
 
   private:
 	std::vector<std::uint64_t> registers;
